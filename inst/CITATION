@@ -1,0 +1,8 @@
+bibentry(
+  bibtype = "Manual",
+  title = "bacoR: Robust Inference for Bias Attributable to Composite Outcomes",
+  author = person("José Mário Nunes", "da Silva"),
+  year = "2026",
+  note = "R package version 0.1.0",
+  url = "https://github.com/zemariu/bacoR"
+)

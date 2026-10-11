@@ -1,0 +1,30 @@
+cff-version: 1.2.0
+message: "If you use bacoR, please cite this software and the associated methodological work."
+
+title: "bacoR: Robust Inference for Bias Attributable to Composite Outcomes"
+type: software
+version: 0.1.0
+
+authors:
+  - family-names: "da Silva"
+    given-names: "José Mário Nunes"
+
+license: GPL-3.0-or-later
+
+repository-code: "https://github.com/zemariu/bacoR"
+url: "https://github.com/zemariu/bacoR"
+
+keywords:
+  - BACO
+  - composite endpoints
+  - ratio inference
+  - Fieller confidence sets
+  - exact inference
+  - weak identification
+
+preferred-citation:
+  type: article
+  title: "Wald inference for the BACO ratio is poorly calibrated when the critical effect is near the null: a simulation and empirical study"
+  authors:
+    - family-names: "da Silva"
+      given-names: "José Mário Nunes"

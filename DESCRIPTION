@@ -1,0 +1,32 @@
+Package: bacoR
+Type: Package
+Title: Robust Inference for Bias Attributable to Composite Outcomes
+Version: 0.1.0
+Authors@R: person("José Mário", "Nunes da Silva",
+    role = c("aut", "cre"),
+    email = "zemariu@hotmail.com")
+Description: Tools for estimation and inference for the Bias Attributable to
+    Composite Outcome (BACO) index. The package separates estimation of the
+    BACO ratio from testing of composite-critical effect discrepancy, provides
+    Fieller confidence sets for ratio inference, exact conditional inference
+    for nested binary aggregate outcomes, coefficient-based and fitted-model
+    inference using joint sampling covariance, optional joint bootstrap
+    validation, and diagnostics for weak-denominator and zero-event settings.
+License: GPL (>= 3)
+Encoding: UTF-8
+LazyData: true
+Depends:
+    R (>= 4.1.0)
+Imports:
+    stats
+Suggests:
+    knitr,
+    rmarkdown,
+    testthat (>= 3.0.0)
+VignetteBuilder: knitr
+Config/testthat/edition: 3
+Roxygen: list(markdown = TRUE)
+Config/roxygen2/version: 8.0.0
+URL: https://github.com/zemariu/bacoR
+BugReports: https://github.com/zemariu/bacoR/issues
+RoxygenNote: 7.3.3

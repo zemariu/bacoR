@@ -1,0 +1,228 @@
+---
+title: "Getting started with bacoR"
+author: "bacoR development team"
+output: rmarkdown::html_vignette
+vignette: >
+  %\VignetteIndexEntry{Getting started with bacoR}
+  %\VignetteEngine{knitr::rmarkdown}
+  %\VignetteEncoding{UTF-8}
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(
+  collapse = TRUE,
+  comment = "#>"
+)
+```
+
+# Overview
+
+`bacoR` implements robust inference for the bias attributable to composite
+outcomes (BACO) index. The package separates three related questions:
+
+1. **Ratio**: how the composite-outcome effect compares with the effect on the
+   critical component, quantified by BACO.
+2. **Magnitude**: how far the two log-effects differ, quantified by
+   `Delta = log(effect_composite) - log(effect_critical)`.
+3. **Testing**: whether the data provide evidence that the two effects differ.
+
+This separation is important because BACO is a ratio whose denominator becomes
+unstable when the critical-component effect approaches the null.
+
+By default, the package prints numerical results only. Plain-language
+interpretation is optional through `interpret = TRUE`.
+
+# 1. Analysis from aggregate nested counts
+
+Suppose a trial has 1,000 participants per group, with 150 versus 200 composite
+events and 30 versus 60 critical events.
+
+```{r counts}
+library(bacoR)
+
+x <- baco_counts(
+  n_treatment = 1000,
+  n_control = 1000,
+  composite_treatment = 150,
+  composite_control = 200,
+  critical_treatment = 30,
+  critical_control = 60
+)
+
+x
+```
+
+The output reports the composite and critical relative risks, the BACO point
+estimate and Fieller confidence interval, the log-effect discrepancy (`Delta`),
+the conditional critical-event risk ratio (`QRR`), and the Fisher exact
+null-discrepancy test.
+
+The Fisher test is the primary count-based test. The probability-ordered mid-P
+is optional:
+
+```{r midp}
+baco_counts(
+  n_treatment = 1000,
+  n_control = 1000,
+  composite_treatment = 150,
+  composite_control = 200,
+  critical_treatment = 30,
+  critical_control = 60,
+  midp = TRUE
+)
+```
+
+# 2. Optional interpretation
+
+Interpretation is deliberately off by default:
+
+```{r interpretation}
+print(x, interpret = TRUE)
+```
+
+The BACO point-estimate interpretation follows the original Diaz-Quijano
+classification:
+
+- `BACO = 1`: no bias attributable to the composite outcome;
+- `BACO > 1`: overestimation / stronger composite association;
+- `0 < BACO < 1`: underestimation / association biased toward the null;
+- `BACO < 0`: inversion of the association.
+
+The statistical test is interpreted separately. A non-significant
+null-discrepancy test is not described as proof of equivalence or absence of
+bias.
+
+# 3. Zero critical events
+
+A zero critical count can make the conventional BACO ratio non-estimable
+without making the exact discrepancy test impossible.
+
+```{r zero}
+baco_counts(
+  n_treatment = 500,
+  n_control = 500,
+  composite_treatment = 60,
+  composite_control = 80,
+  critical_treatment = 0,
+  critical_control = 4
+)
+```
+
+No automatic 0.5 continuity correction is applied.
+
+# 4. Entering adjusted effects directly
+
+Users with adjusted RRs, IRRs, or HRs do not need to calculate logarithms
+manually. The standard errors, however, are the standard errors of the
+underlying log coefficients.
+
+```{r effects}
+baco_effects(
+  effect_composite = 0.80,
+  effect_critical = 0.60,
+  se_log_composite = 0.08,
+  se_log_critical = 0.12,
+  correlation_log = 0.60,
+  effect_measure = "RR"
+)
+```
+
+Either the covariance or the correlation between the two log coefficients must
+be supplied. The two standard errors alone are insufficient to reconstruct
+their covariance.
+
+# 5. Analysis directly from fitted models
+
+The package includes `baco_trial`, a simulated nested-endpoint dataset created
+for examples and software validation.
+
+```{r trial}
+data("baco_trial", package = "bacoR")
+
+head(baco_trial)
+```
+
+Fit two models with the same adjustment specification:
+
+```{r models}
+fit_comp <- glm(
+  composite ~ treatment + age + sex + comorbidity,
+  family = poisson(link = "log"),
+  data = baco_trial
+)
+
+fit_crit <- glm(
+  critical ~ treatment + age + sex + comorbidity,
+  family = poisson(link = "log"),
+  data = baco_trial
+)
+
+m <- baco_models(
+  composite_model = fit_comp,
+  critical_model = fit_crit,
+  exposure = "treatment",
+  covariance_method = "joint_sandwich",
+  effect_measure = "RR"
+)
+
+m
+```
+
+`baco_models()` extracts the exposure coefficients and estimates their joint
+sampling covariance from participant-level score contributions.
+
+# 6. Bootstrap validation
+
+The analytical covariance can be compared with a joint participant-level
+bootstrap:
+
+```{r bootstrap, eval=FALSE}
+m_boot <- baco_models(
+  composite_model = fit_comp,
+  critical_model = fit_crit,
+  exposure = "treatment",
+  covariance_method = "both",
+  data = baco_trial,
+  R = 2000,
+  seed = 123,
+  effect_measure = "RR"
+)
+
+m_boot
+```
+
+The same resampled participants are used to refit both endpoint models in every
+bootstrap replicate.
+
+# 7. Fieller confidence sets
+
+A bounded Fieller set is reported as an ordinary finite interval:
+
+```text
+Estimate [95% Fieller CI] : 0.484 [0.297, 0.853]
+```
+
+When the critical-effect coefficient is compatible with zero, the Fieller set
+may be unbounded or disjoint. Such sets are retained in their mathematically
+correct form rather than forced into a conventional finite interval.
+
+# 8. Recommended reporting
+
+For aggregate nested binary endpoints, report:
+
+- composite and critical relative risks;
+- BACO point estimate and Fieller confidence set;
+- `Delta` and `QRR`;
+- Fisher exact p-value for no composite-critical discrepancy;
+- weak-denominator and zero-event diagnostics.
+
+For adjusted model-based analyses, report:
+
+- adjusted composite and critical association measures;
+- adjusted BACO and Fieller confidence set;
+- adjusted `Delta` and its confidence interval;
+- joint test of `Delta = 0`;
+- the covariance estimation method.
+
+The conventional Wald test of the BACO ratio is not the default inferential
+procedure in `bacoR`.
