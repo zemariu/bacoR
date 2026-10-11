@@ -4,6 +4,8 @@ message: "If you use bacoR, please cite this software and the associated methodo
 title: "bacoR: Robust Inference for Bias Attributable to Composite Outcomes"
 type: software
 version: 0.1.0
+date-released: "2026-10-10"
+doi: "10.5281/zenodo.23290749"
 
 authors:
   - family-names: "da Silva"

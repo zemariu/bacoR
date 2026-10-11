@@ -3,6 +3,7 @@
 [![R-CMD-check](https://github.com/zemariu/bacoR/actions/workflows/R-CMD-check.yaml/badge.svg)](https://github.com/zemariu/bacoR/actions/workflows/R-CMD-check.yaml)
 [![GitHub release](https://img.shields.io/github/v/release/zemariu/bacoR)](https://github.com/zemariu/bacoR/releases)
 [![License: GPL v3](https://img.shields.io/badge/License-GPLv3-blue.svg)](LICENSE.md)
+[![DOI](https://zenodo.org/badge/DOI/10.5281/zenodo.23290749.svg)](https://doi.org/10.5281/zenodo.23290749)
 
 `bacoR` is an R package for estimation and inference for the **Bias Attributable
 to Composite Outcome (BACO)** framework. It provides tools for ratio-based BACO
